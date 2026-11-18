@@ -64,7 +64,8 @@ async def upload_file(
         title=title,
         url=image_url,
         file_type=file.content_type.split('/')[0],
-        file_name=file.filename
+        file_name=file.filename,
+        user_id=user.id
     )
     session.add(post)
     await session.commit()
@@ -73,9 +74,10 @@ async def upload_file(
 
 @app.get('/feed')
 async def get_feed(
-  session: SessionDep
+  session: SessionDep,
+  user: AuthDep
 ):
-  result = await session.execute(select(Post).order_by(Post.created_at.desc()))
+  result = await session.execute(select(Post).order_by(Post.created_at.desc()).filter(Post.user_id == user.id))
   posts = result.scalars().all()
   return posts
 
